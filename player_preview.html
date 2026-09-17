@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Brandly AI — Glass Montage Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #09080e;
+      --card-bg: rgba(22, 19, 32, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #FFE600;
+      --accent-glow: rgba(255, 230, 0, 0.35);
+      --text: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --brand-purple: #7C3AED;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 15% 15%, rgba(124, 58, 237, 0.18) 0px, transparent 50%),
+        radial-gradient(at 85% 85%, rgba(255, 230, 0, 0.12) 0px, transparent 50%);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 64px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      max-width: 700px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(255, 230, 0, 0.12);
+      border: 1px solid rgba(255, 230, 0, 0.3);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    .main-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 36px;
+      justify-content: center;
+      align-items: flex-start;
+      max-width: 1080px;
+      width: 100%;
+    }
+
+    /* Phone Mockup */
+    .phone-wrapper {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .phone-ambient-glow {
+      position: absolute;
+      inset: 20px;
+      background: radial-gradient(circle, rgba(255, 230, 0, 0.25) 0%, rgba(124, 58, 237, 0.35) 60%, transparent 80%);
+      filter: blur(48px);
+      z-index: 0;
+      opacity: 0.6;
+      transition: opacity 0.5s;
+    }
+
+    .phone-frame {
+      position: relative;
+      z-index: 1;
+      width: 320px;
+      height: 640px;
+      background: #000;
+      border-radius: 44px;
+      padding: 10px;
+      box-shadow: 
+        0 0 0 2px rgba(255, 255, 255, 0.12),
+        0 24px 60px -12px rgba(0, 0, 0, 0.85);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-island {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 22px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    .video-container {
+      width: 100%;
+      height: 100%;
+      border-radius: 34px;
+      overflow: hidden;
+      position: relative;
+      background: #111;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .phone-controls {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 16, 26, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 8px 14px;
+      z-index: 10;
+    }
+
+    .ctrl-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 10px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .ctrl-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Right Details Cards */
+    .details-pane {
+      flex: 1;
+      min-width: 320px;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 22px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .metric-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .hook-banner-preview {
+      background: rgba(18, 16, 26, 0.85);
+      border: 1.5px solid var(--accent);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .hook-icon {
+      color: var(--accent);
+      font-size: 22px;
+      animation: pulse 1.5s infinite;
+    }
+
+    .hook-text {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #fff;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .feature-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .check-icon {
+      color: #10B981;
+      font-weight: bold;
+    }
+
+    .open-file-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+    }
+
+    .open-file-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    .open-file-btn:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="badge">⚡ Brandly Auto-Montage Engine V1</div>
+    <h1>Тестовый рендер Reels (стиль Glass)</h1>
+    <p class="subtitle">Вертикальное видео 9:16 (1080×1920) с хуком, плашкой и пословной подсветкой</p>
+  </div>
+
+  <div class="main-layout">
+    
+    <!-- Phone Mockup Frame -->
+    <div class="phone-wrapper">
+      <div class="phone-ambient-glow" id="ambientGlow"></div>
+      <div class="phone-frame">
+        <div class="phone-island"></div>
+        <div class="video-container">
+          <video id="reelsVideo" playsinline autoplay loop muted>
+            <source src="test_reels_glass.mp4" type="video/mp4">
+            Ваш браузер не поддерживает воспроизведение видео.
+          </video>
+
+          <div class="phone-controls">
+            <button class="ctrl-btn" id="playBtn" title="Play/Pause">⏸️</button>
+            <button class="ctrl-btn" id="muteBtn" title="Включить звук">🔇</button>
+            <button class="ctrl-btn" id="restartBtn" title="Перезапустить">🔄</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Pane -->
+    <div class="details-pane">
+
+      <!-- AI Hook Card -->
+      <div class="card">
+        <div class="card-title">⚡ Сгенерированный AI-Хук (первые 3 сек)</div>
+        <div class="hook-banner-preview">
+          <span class="hook-icon">⚡</span>
+          <span class="hook-text" id="hookDisplay">МОНТАЖЕРЫ УЖЕ НЕ НУЖНЫ</span>
+        </div>
+      </div>
+
+      <!-- Montage Pipeline Metrics -->
+      <div class="card">
+        <div class="card-title">📊 Метрики сборки ролика</div>
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div class="metric-value">15.6 с</div>
+            <div class="metric-label">Время авто-монтажа</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value">14.8 с</div>
+            <div class="metric-label">Итоговый хронометраж</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value">34</div>
+            <div class="metric-label">Слов распознано</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value">2</div>
+            <div class="metric-label">Паузы вырезано</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Checklist -->
+      <div class="card">
+        <div class="card-title">✨ Активные модули конвейера</div>
+        <div class="features-list">
+          <div class="feature-row">
+            <span class="check-icon">✓</span>
+            <span><b>Whisper API:</b> точные таймкоды каждого слова</span>
+          </div>
+          <div class="feature-row">
+            <span class="check-icon">✓</span>
+            <span><b>Silence Cutter:</b> мгновенная вырезка пауз (jump-cuts)</span>
+          </div>
+          <div class="feature-row">
+            <span class="check-icon">✓</span>
+            <span><b>Glass Style:</b> матовая плашка + янтарь (#FFE600)</span>
+          </div>
+          <div class="feature-row">
+            <span class="check-icon">✓</span>
+            <span><b>Auto Scale:</b> умный перенос и защита от обрезки текста</span>
+          </div>
+          <div class="feature-row">
+            <span class="check-icon">✓</span>
+            <span><b>FFmpeg Hardware:</b> аппаратный рендер без сторонних костылей</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <a class="open-file-btn" href="test_reels_glass.mp4" download="brandly_reels_glass.mp4">
+            ⬇️ Скачать готовый MP4 (1080×1920)
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    const video = document.getElementById('reelsVideo');
+    const playBtn = document.getElementById('playBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    playBtn.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        playBtn.textContent = '⏸️';
+      } else {
+        video.pause();
+        playBtn.textContent = '▶️';
+      }
+    });
+
+    muteBtn.addEventListener('click', () => {
+      video.muted = !video.muted;
+      muteBtn.textContent = video.muted ? '🔇' : '🔊';
+    });
+
+    restartBtn.addEventListener('click', () => {
+      video.currentTime = 0;
+      video.play();
+      playBtn.textContent = '⏸️';
+    });
+  </script>
+</body>
+</html>

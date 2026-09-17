@@ -1,0 +1,15 @@
+[Unit]
+Description=Amalia Project AI Agent Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/amalia_bot
+ExecStart=/opt/amalia_bot/venv/bin/python -m tg_bot.main
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

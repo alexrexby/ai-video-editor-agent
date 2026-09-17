@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Brandly — Демо Личного Кабинета</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://brandly-ai.com/assets/index-BwZYGLaG.css" />
+    <script>
+      // Перехватываем API до инициализации приложения
+      const origFetch = window.fetch;
+      window.fetch = async function(url, opts = {}) {
+        const u = url ? url.toString() : '';
+        if (u.includes('/auth/me') || u.includes('/auth/telegram/widget')) {
+          return new Response(JSON.stringify({
+            id: 777,
+            first_name: "Алексей",
+            last_name: "Смирнов",
+            username: "alex_reels",
+            instagram: "alex.reels",
+            city: "Москва",
+            profile_completed: true,
+            balance_tokens: 150,
+            is_partner: false,
+            is_admin: false,
+            niche: { id: 1, key: "network", title: "Сетевой бизнес" }
+          }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }
+        if (u.includes('/site-status')) {
+          return new Response(JSON.stringify({ site_closed: false }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }
+        if (u.includes('/niches')) {
+          return new Response(JSON.stringify([
+            {"id":1,"key":"network","title":"Сетевой бизнес","subtitle":"MLM, продукт, команда"},
+            {"id":2,"key":"fitness","title":"Фитнес и спорт","subtitle":"Тренеры, залы, марафоны"},
+            {"id":3,"key":"wellness","title":"Велнес и питание","subtitle":"Здоровье, нутрициология"}
+          ]), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }
+        try {
+          return await origFetch(url, opts);
+        } catch(e) {
+          return new Response(JSON.stringify({}), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }
+      };
+      // Устанавливаем путь /my
+      window.history.replaceState(null, '', '/my');
+    </script>
+    <script type="module" crossorigin src="https://brandly-ai.com/assets/index-BoUnH-XO.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+[Unit]
+Description=AI Video & Content Team Telegram Agent
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/ai_video_editor
+ExecStart=/opt/ai_video_editor/venv/bin/python main.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
