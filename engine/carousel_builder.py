@@ -1,3 +1,8 @@
+try:
+    from config import EXPERT_NAME, BRAND_NAME
+except ImportError:
+    EXPERT_NAME = os.getenv("EXPERT_NAME", "Эксперт")
+    BRAND_NAME = os.getenv("BRAND_NAME", "AI Video Team")
 import os
 import re
 import sys
@@ -69,14 +74,14 @@ async def update_draft_with_instructions(
         await status_callback("✏️ <b>[Главред]</b> Вносит правки в текст карусели...")
 
     edit_prompt = (
-        f"Ты — Главный редактор проекта Амалии Саргсян.\n"
+        f"Ты — Главный редактор проекта {BRAND_NAME}.\n"
         f"Перед тобой текущий текст карусели:\n\n"
         f"{draft['text']}\n\n"
         f"ПОЛЬЗОВАТЕЛЬ ПРОСИТ ВНЕСТИ СЛЕДУЮЩИЕ ПРАВКИ:\n"
         f"{instructions}\n\n"
         f"ТВОЯ ЗАДАЧА:\n"
         f"1. Аккуратно примени запрошенные изменения (например, замени CTA, оффер, формулировку слайда).\n"
-        f"2. Сохрани жесткие правила голоса Амалии (живая речь, без «не X, а Y», без клише, только дефис «-»).\n"
+        f"2. Сохрани жесткие правила голоса эксперта (живая речь, без «не X, а Y», без клише, только дефис «-»).\n"
         f"3. Выдай ИТОГОВУЮ ВЫЧИЩЕННУЮ ВЕРСИЮ всех слайдов карусели целиком."
     )
 
@@ -121,7 +126,7 @@ async def generate_carousel_draft(
         await status_callback("✍️ <b>1/2 [Копирайтер]</b> Упаковывает смыслы и пишет текст карточек...")
 
     copywriter_prompt = (
-        f"Ты — Копирайтер проекта Амалии Саргсян.\n"
+        f"Ты — Копирайтер проекта {BRAND_NAME}.\n"
         f"Напиши сильный текст карусели (5-7 карточек) для блога по следующим вводным:\n\n"
         f"{topic}\n"
         f"{('ИСХОДНЫЙ МАТЕРИАЛ:\n' + source_text) if source_text else ''}\n\n"
@@ -145,14 +150,14 @@ async def generate_carousel_draft(
 
     # Stage 2: Главред
     if status_callback:
-        await status_callback("🔍 <b>2/2 [Главред]</b> Проверяет факты, стоп-слова и голос Амалии...")
+        await status_callback("🔍 <b>2/2 [Главред]</b> Проверяет факты, стоп-слова и голос эксперта...")
 
     editor_prompt = (
-        f"Ты — Главный редактор и Факт-чекер проекта Амалии Саргсян.\n"
+        f"Ты — Главный редактор и Факт-чекер проекта {BRAND_NAME}.\n"
         f"Перед тобой черновик карусели от копирайтера:\n\n"
         f"{copywriter_res}\n\n"
         f"ТВОЯ ЗАДАЧА:\n"
-        f"1. Жестко проверь текст на соответствие голосу Амалии и правилам проекта:\n"
+        f"1. Жестко проверь текст на соответствие голосу эксперта и правилам проекта:\n"
         f"   - Удали любые «не потому что X, а Y», «не значит X, а Y», «дело не в X, а в Y».\n"
         f"   - Удали инфобиз-клише: «Знакомо?», «Что мы сделали?», «Итог:», «глухая операционка», «рутинные задачи».\n"
         f"   - Замени все длинные тире («—») на короткие «-».\n"
@@ -185,7 +190,7 @@ async def render_carousel_from_text(
         await status_callback("🎨 <b>[Дизайнер]</b> Размещает текст на карточки 1080x1350...")
 
     designer_prompt = (
-        f"Ты — Дизайнер и Арт-директор проекта Амалии Саргсян.\n"
+        f"Ты — Дизайнер и Арт-директор проекта {BRAND_NAME}.\n"
         f"Перед тобой ГОТОВЫЙ И ПРОВЕРЕННЫЙ текст карусели:\n\n"
         f"{text}\n\n"
         f"ТВОЯ ЕДИНСТВЕННАЯ ЗАДАЧА:\n"
@@ -233,7 +238,7 @@ async def build_dynamic_carousel(topic: str, status_callback=None) -> tuple[bool
 
 async def remake_competitor_carousel(source_text: str = "", image_bytes: bytes = None, status_callback=None) -> tuple[bool, str, list[Path], str, str, str]:
     return await build_multiagent_carousel(
-        topic="Адаптация карусели конкурента под голос Амалии",
+        topic="Адаптация карусели конкурента под голос эксперта",
         source_text=source_text,
         image_bytes=image_bytes,
         status_callback=status_callback

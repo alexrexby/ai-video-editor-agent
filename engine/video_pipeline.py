@@ -521,7 +521,7 @@ def extract_callouts_from_transcript(edl: dict) -> list[dict]:
         (["важно", "внимани", "правило"], "⚡️ ОБРАТИТЕ ВНИМАНИЕ", "alert"),
         (["система", "структур"], "💎 СИСТЕМНЫЙ ПОДХОД", "info"),
         (["клиент", "мастер"], "👥 РАБОТА С КЛИЕНТАМИ", "info"),
-        (["интенсив", "курс", "продукт"], "🔥 ПРАКТИКУМ АМАЛИИ", "info"),
+        (["интенсив", "курс", "продукт"], f"🔥 {os.getenv('STICKER_BRAND', 'ПРАКТИКУМ')}", "info"),
     ]
 
     NUMBER_PATTERN = re.compile(r"\b(\d+[\d\s]*(?:%|руб|тыс|млн|лет|шаг\w*|клиент\w*|к|k|x)?)\b", re.IGNORECASE)
@@ -679,7 +679,11 @@ def detect_face_safe_zone(video_path: Path, num_samples: int = 10) -> dict:
             logger.warning("MediaPipe not installed, using default top: 210 subtitle placement")
             return default_placement
 
-        model_path = Path("/opt/amalia_team_bot/models/blaze_face_short_range.tflite")
+        try:
+            from config import MODELS_DIR
+            model_path = MODELS_DIR / "blaze_face_short_range.tflite"
+        except ImportError:
+            model_path = Path(__file__).resolve().parent.parent / "models" / "blaze_face_short_range.tflite"
         if not model_path.exists():
             model_path.parent.mkdir(parents=True, exist_ok=True)
             try:

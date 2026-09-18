@@ -13,7 +13,12 @@ from aiogram.types import FSInputFile, InputMediaPhoto, InlineKeyboardMarkup, In
 
 import logging
 import json
-from tg_bot.config import BASE_DIR, MATERIALS_DIR, RAZBOR_DIR, KARUSEL_DIR, VIDEOS_DIR
+try:
+    from config import BASE_DIR, MATERIALS_DIR, RAZBOR_DIR, KARUSEL_DIR, VIDEOS_DIR, EXPERT_NAME, BRAND_NAME
+except ImportError:
+    from tg_bot.config import BASE_DIR, MATERIALS_DIR, RAZBOR_DIR, KARUSEL_DIR, VIDEOS_DIR
+    EXPERT_NAME = os.getenv("EXPERT_NAME", "Эксперт")
+    BRAND_NAME = os.getenv("BRAND_NAME", "AI Video Team")
 from tg_bot.engine.agent_runner import run_agent_task
 from tg_bot.engine.file_extractor import extract_text_from_file
 from tg_bot.engine.elevenlabs_scribe import async_transcribe_media, format_seconds
@@ -59,7 +64,7 @@ FORUM_TOPICS = [
     {
         "name": "✍️ Копирайтер",
         "role": "copywriter",
-        "welcome": "✍️ <b>Копирайтер команды Амалии</b>\n\nПишите задачи на посты в Telegram-канал, серии Stories, прогревы к вебинарам/Системе или хуки по ВИСП для Reels.\nЯ упакую смыслы живым языком Амалии с ее бытовыми образами и рублеными добивками."
+        "welcome": f"✍️ <b>Копирайтер команды {BRAND_NAME}</b>\n\nПишите задачи на посты в Telegram-канал, серии Stories, прогревы или хуки по ВИСП для Reels.\nЯ упакую смыслы живым языком эксперта ({EXPERT_NAME}) с яркими образами и рублеными добивками."
     },
     {
         "name": "🎨 Дизайнер",
@@ -74,7 +79,7 @@ FORUM_TOPICS = [
     {
         "name": "🎙 Смысловик",
         "role": "analyst",
-        "welcome": "🎙 <b>Смысловик и Аналитик созвонов</b>\n\nСкидывайте сюда аудиозаписи, голосовые, кружки или файлы транскриптов (.docx, .pdf, .txt, .html).\nЯ моментально вытащу: задачи по исполнителям, дословные цитаты Амалии и смысловые блоки для контента."
+        "welcome": "🎙 <b>Смысловик и Аналитик созвонов</b>\n\nСкидывайте сюда аудиозаписи, голосовые, кружки или файлы транскриптов (.docx, .pdf, .txt, .html).\nЯ моментально вытащу: задачи по исполнителям, дословные цитаты спикера и смысловые блоки для контента."
     },
     {
         "name": "⚙️ Техспециалист",
@@ -84,12 +89,12 @@ FORUM_TOPICS = [
     {
         "name": "🎬 Видеомонтажер",
         "role": "video_editor",
-        "welcome": "🎬 <b>Видеомонтажер и Reels-мейкер команды Амалии</b>\n\nСкидывайте сюда исходники видео, дубли, кружки или сценарии Reels.\nЯ построю монтажный план по методологии video-use: пословная транскрибация через ElevenLabs Scribe, вырезка пауз и слов-паразитов, динамичные субтитры (2-3 слова капсом), перебивки и хуки по ВИСП!"
+        "welcome": f"🎬 <b>Видеомонтажер и Reels-мейкер команды {BRAND_NAME}</b>\n\nСкидывайте сюда исходники видео, дубли, кружки или сценарии Reels.\nЯ построю монтажный план по методологии video-use: пословная транскрибация через ElevenLabs Scribe, вырезка пауз и слов-паразитов, динамичные субтитры (2-3 слова капсом), перебивки и хуки по ВИСП!"
     }
 ]
 
 HELP_TEXT = """
-👋 <b>Команда специалистов проекта Амалии Саргсян в сборе!</b>
+👋 <b>Команда AI-специалистов {BRAND_NAME} в сборе!</b>
 
 👥 <b>Специалисты в команде:</b>
 • ✍️ <b>Копирайтер</b> — посты в канал, сценарии Stories, хуки ВИСП и прогревы
@@ -378,8 +383,8 @@ async def on_render_carousel(callback: CallbackQuery):
     ])
     await callback.answer()
     choice_msg = await callback.message.reply(
-        "📸 <b>Выбор фотографии Амалии для финального слайда:</b>\n\n"
-        "• <b>Оставить стандартное:</b> Дизайнер возьмет основное фото Амалии из пула.\n"
+        "📸 <b>Выбор фотографии эксперта для финального слайда:</b>\n\n"
+        "• <b>Оставить стандартное:</b> Дизайнер возьмет основное фото эксперта из пула.\n"
         "• <b>Загрузить новое:</b> вы сможете скинуть свежее фото (файлом или картинкой), и бот поставит именно его.",
         parse_mode="HTML",
         reply_markup=kb
@@ -462,7 +467,7 @@ async def on_render_photo_wait(callback: CallbackQuery):
     USER_PHOTO_WAIT_STATES[callback.from_user.id] = draft_id
     await callback.answer("📸 Ожидаю фото...")
     p_msg = await callback.message.reply(
-        "📸 <b>Отправьте фотографию Амалии прямо в чат</b> (картинкой или файлом без сжатия).\n\n"
+        "📸 <b>Отправьте фотографию эксперта прямо в чат</b> (картинкой или файлом без сжатия).\n\n"
         "<i>Дизайнер сразу подставит её в финальный CTA-слайд и сгенерирует готовую карусель 1080x1350.</i>",
         parse_mode="HTML"
     )
@@ -476,7 +481,7 @@ async def cmd_karusel(message: types.Message):
 @router.message(Command("photo"))
 async def cmd_upload_photo(message: types.Message):
     await message.answer(
-        "📸 <b>Загрузка фото Амалии для каруселей:</b>\n\n"
+        "📸 <b>Загрузка фото эксперта для каруселей:</b>\n\n"
         "Отправьте фотографию в чат с подписью <code>/photo</code> или словом <b>«фото»</b> — бот автоматически сохранит её в пул фотографий для финальных слайдов каруселей!",
         parse_mode="HTML"
     )
@@ -487,7 +492,7 @@ def determine_role(message: types.Message) -> tuple[str, str]:
 
     import re
     if text.startswith("/post") or text.startswith("/hooks") or text.startswith("/story"):
-        return "copywriter", text.replace("/post", "").replace("/hooks", "").replace("/story", "").strip() or "Напиши пост в Telegram-канал голосом Амалии."
+        return "copywriter", text.replace("/post", "").replace("/hooks", "").replace("/story", "").strip() or "Напиши пост в Telegram-канал голосом эксперта."
     elif text.startswith("/karusel"):
         return "designer", text.replace("/karusel", "").strip() or "Собери карусель."
     elif text.startswith("/check"):
@@ -565,8 +570,8 @@ async def cmd_insta(message: types.Message):
         await message.answer(
             "🎬 <b>Отправьте ссылку на Instagram Reels или пост/карусель</b>\n\n"
             "Пример: <code>/insta https://www.instagram.com/p/C_...</code>\n"
-            "• Для Reels: я скачаю видео, расшифрую речь Амалии и подготовлю пост для Telegram.\n"
-            "• Для карусели: я скачаю карточки, перепишу голосом Амалии и сверстаю готовый альбом PNG!",
+            "• Для Reels: я скачаю видео, расшифрую речь спикера и подготовлю пост для Telegram.\n"
+            "• Для карусели: я скачаю карточки, перепишу голосом эксперта и сверстаю готовый альбом PNG!",
             parse_mode="HTML"
         )
         return
@@ -818,7 +823,7 @@ async def handle_document(message: types.Message):
     if not caption:
         if "созвон" in file_name.lower() or "транскрипт" in file_name.lower():
             role = "analyst"
-            prompt = f"Разбери транскрипт созвона {file_name} и выдели главные смыслы, задачи и цитаты Амалии."
+            prompt = f"Разбери транскрипт созвона {file_name} и выдели главные смыслы, задачи и цитаты спикера ({EXPERT_NAME})."
         else:
             prompt = f"Разбери документ {file_name}."
 
@@ -848,7 +853,7 @@ async def handle_audio(message: types.Message):
     audio_bytes = audio_bytes_io.getvalue()
 
     mime_type = getattr(audio_obj, "mime_type", "audio/ogg") or "audio/ogg"
-    caption = message.caption or "Расшифруй аудио, сделай разбор созвона/голосового: выдели задачи, смыслы для контента и цитаты Амалии."
+    caption = message.caption or f"Расшифруй аудио, сделай разбор созвона/голосового: выдели задачи, смыслы для контента и цитаты спикера ({EXPERT_NAME})."
 
     response, model_name = await run_agent_task(
         role="analyst",
@@ -1054,7 +1059,7 @@ async def process_and_render_video(
         clean_stem = re.sub(r"^temp_[a-zA-Z0-9]+_[a-zA-Z0-9]+_", "", raw_stem)
         if not clean_stem or clean_stem.startswith("temp_"):
             clean_stem = "Reels"
-        out_doc_name = f"Amalia_Reels_{clean_stem}.mov"
+        out_doc_name = f"Reels_{clean_stem}.mov"
 
         thread_id = message.message_thread_id
         await message.bot.send_document(
@@ -1144,7 +1149,7 @@ async def cmd_video(message: types.Message):
     args = re.sub(r"^/(?:video|reels|montage)\s*", "", message.text or "", flags=re.IGNORECASE).strip()
     if not args:
         await message.answer(
-            "🎬 <b>Видеомонтажер команды Амалии</b>\n\n"
+            "🎬 <b>Видеомонтажер команды {BRAND_NAME}</b>\n\n"
             "• Пришлите видео или видео-кружок прямо в чат — я расшифрую его через ElevenLabs Scribe, найду паузы/оговорки, предложу нарезку и динамичные субтитры.\n"
             "• Или пришлите тему/текст: <code>/video [сценарий или тема рилса]</code> — я распишу покадровый план монтажа по ВИСП!",
             parse_mode="HTML"
@@ -1168,7 +1173,7 @@ async def cmd_broll(message: types.Message):
     if not args:
         url_text = f"<code>{current_url}</code>" if current_url else "<i>не подключена</i>"
         await message.answer(
-            f"🎬 <b>Библиотека B-Roll футажей команды Амалии</b>\n\n"
+            f"🎬 <b>Библиотека B-Roll футажей команды {BRAND_NAME}</b>\n\n"
             f"📁 <b>Папка Google Drive:</b> {url_text}\n"
             f"🎞 <b>Доступно видео-перебивок в банке:</b> {len(all_videos)} шт.\n\n"
             f"<b>Как подключить или обновить:</b>\n"
@@ -1235,7 +1240,7 @@ async def cmd_adapt(message: types.Message):
             "🎨 <b>Отправьте текст или скриншот чужой карусели</b>\n\n"
             "Пример: <code>/adapt [текст карусели конкурента]</code>\n"
             "Или просто пришлите скриншоты в ветку <b>🎨 Дизайнер</b>.\n"
-            "Конвейер (Копирайтер → Главред → Дизайнер) возьмет хук, перепишет голосом Амалии и сверстает готовый альбом PNG 1080x1350!",
+            "Конвейер (Копирайтер → Главред → Дизайнер) возьмет хук, перепишет голосом эксперта и сверстает готовый альбом PNG 1080x1350!",
             parse_mode="HTML"
         )
         return
@@ -1249,7 +1254,7 @@ async def cmd_adapt(message: types.Message):
             pass
 
     clean_post_text, draft_id, model_name = await generate_carousel_draft(
-        topic="Адаптация карусели конкурента под голос Амалии",
+        topic="Адаптация карусели конкурента под голос эксперта",
         source_text=args,
         status_callback=update_status
     )
@@ -1364,8 +1369,8 @@ async def handle_photo(message: types.Message):
             await message.answer("✅ <b>Карточки с вашим фото готовы!</b>", parse_mode="HTML", reply_markup=kb_change)
             return
 
-    # 1. Загрузка фото Амалии в общий пул
-    if caption.startswith("/photo") or caption.lower() in ("фото", "добавь фото", "сохрани фото", "фото амалии"):
+    # 1. Загрузка фото эксперта в общий пул
+    if caption.startswith("/photo") or caption.lower() in ("фото", "добавь фото", "сохрани фото", "фото эксперта", "фото спикера"):
         file_info = await message.bot.get_file(photo.file_id)
         img_bytes_io = io.BytesIO()
         await message.bot.download_file(file_info.file_path, destination=img_bytes_io)
@@ -1374,11 +1379,11 @@ async def handle_photo(message: types.Message):
         photos_dir = KARUSEL_DIR / "photos"
         photos_dir.mkdir(parents=True, exist_ok=True)
         import time
-        file_name = f"amalia_{int(time.time())}.jpg"
+        file_name = f"speaker_{int(time.time())}.jpg"
         (photos_dir / file_name).write_bytes(image_bytes)
         
         await message.answer(
-            f"✅ <b>Фотография Амалии успешно добавлена в пул!</b>\n"
+            f"✅ <b>Фотография эксперта успешно добавлена в пул!</b>\n"
             f"Файл сохранен: <code>{file_name}</code>\n\n"
             f"Теперь Дизайнер сможет использовать эту фотографию для финальных слайдов каруселей.",
             parse_mode="HTML"
@@ -1386,7 +1391,7 @@ async def handle_photo(message: types.Message):
         return
 
     # 2. Адаптация карусели конкурента
-    if role in ("designer", "karusel") or any(w in caption.lower() for w in ("адаптир", "переделай", "карусель", "амали")):
+    if role in ("designer", "karusel") or any(w in caption.lower() for w in ("адаптир", "переделай", "карусель")):
         status_msg = await message.answer("🔄 <b>Запуск конвейера карусели:</b> Копирайтер → Главред...", parse_mode="HTML")
         
         async def update_status(text: str):
@@ -1401,8 +1406,8 @@ async def handle_photo(message: types.Message):
         image_bytes = img_bytes_io.getvalue()
 
         clean_post_text, draft_id, model_name = await generate_carousel_draft(
-            topic="Адаптация карточки/карусели конкурента под голос Амалии",
-            source_text=caption or "Адаптируй этот скриншот под стандарты блога Амалии Саргсян.",
+            topic="Адаптация карточки/карусели конкурента под голос эксперта",
+            source_text=caption or f"Адаптируй этот скриншот под стандарты блога эксперта ({EXPERT_NAME}).",
             image_bytes=image_bytes,
             status_callback=update_status
         )

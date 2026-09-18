@@ -48,7 +48,7 @@ async def main():
     dp = Dispatcher()
     dp.include_router(router)
 
-    logger.info("🚀 Бот команды Амалии запущен и готов к приему сообщений!")
+    logger.info("🚀 AI Video Editor Agent запущен и готов к приему сообщений!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

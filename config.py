@@ -25,7 +25,8 @@ except ImportError:
                 line = line.strip()
                 if line and not line.startswith("#") and "=" in line:
                     k, v = line.split("=", 1)
-                    os.environ.setdefault(k.strip(), v.strip().strip("'\""))
+                    clean_val = v.strip().strip("'").strip('"')
+                    os.environ.setdefault(k.strip(), clean_val)
             break
 
 # API Tokens and Endpoints (Configured via .env)
@@ -38,14 +39,19 @@ ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 LOCAL_BOT_API_URL = os.getenv("LOCAL_BOT_API_URL", "http://127.0.0.1:8081")
 USE_LOCAL_BOT_API = os.getenv("USE_LOCAL_BOT_API", "false").lower() in ("true", "1", "yes")
 
+# White-Label / Expert Profile Configuration
+EXPERT_NAME = os.getenv("EXPERT_NAME", "Эксперт")
+BRAND_NAME = os.getenv("BRAND_NAME", "AI Video Team")
+STICKER_BRAND = os.getenv("STICKER_BRAND", "🔥 ПРАКТИКУМ")
+
 # Remotion directory resolution
 _env_remotion = os.getenv("REMOTION_DIR", "")
 if _env_remotion and Path(_env_remotion).exists():
     REMOTION_DIR = Path(_env_remotion)
 elif (CURRENT_DIR / "remotion").exists():
     REMOTION_DIR = CURRENT_DIR / "remotion"
-elif Path("/root/amalia_remotion").exists():
-    REMOTION_DIR = Path("/root/amalia_remotion")
+elif Path("/opt/remotion").exists():
+    REMOTION_DIR = Path("/opt/remotion")
 else:
     REMOTION_DIR = CURRENT_DIR / "remotion"
 
@@ -56,14 +62,18 @@ RAZBOR_DIR = os.getenv("RAZBOR_DIR", str(DATA_DIR / "razbors"))
 CONTENT_DIR = os.getenv("CONTENT_DIR", str(DATA_DIR / "content"))
 KARUSEL_DIR = os.getenv("KARUSEL_DIR", str(DATA_DIR / "carousels"))
 VIDEOS_DIR = Path(os.getenv("VIDEOS_DIR", str(DATA_DIR / "videos")))
+BROLL_DIR = Path(os.getenv("BROLL_DIR", str(BASE_DIR / "broll_bank")))
+MODELS_DIR = Path(os.getenv("MODELS_DIR", str(BASE_DIR / "models")))
 AGENTS_MD_PATH = BASE_DIR / "AGENTS.md"
 
 MATERIALS_DIR = Path(MATERIALS_DIR)
 RAZBOR_DIR = Path(RAZBOR_DIR)
 CONTENT_DIR = Path(CONTENT_DIR)
 KARUSEL_DIR = Path(KARUSEL_DIR)
+BROLL_DIR = Path(BROLL_DIR)
+MODELS_DIR = Path(MODELS_DIR)
 
-for d in [DATA_DIR, MATERIALS_DIR, RAZBOR_DIR, CONTENT_DIR, KARUSEL_DIR, VIDEOS_DIR]:
+for d in [DATA_DIR, MATERIALS_DIR, RAZBOR_DIR, CONTENT_DIR, KARUSEL_DIR, VIDEOS_DIR, BROLL_DIR, MODELS_DIR]:
     try:
         d.mkdir(parents=True, exist_ok=True)
     except Exception:

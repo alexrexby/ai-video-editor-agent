@@ -14,10 +14,14 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 # Determine B-Roll bank directory
-if Path("/opt/amalia_team_bot").exists():
-    BROLL_DIR = Path("/opt/amalia_team_bot/broll_bank")
-else:
-    BROLL_DIR = Path(__file__).resolve().parent.parent / "broll_bank"
+try:
+    from config import BROLL_DIR
+except ImportError:
+    _env_broll = os.getenv("BROLL_DIR", "")
+    if _env_broll and Path(_env_broll).exists():
+        BROLL_DIR = Path(_env_broll)
+    else:
+        BROLL_DIR = Path(__file__).resolve().parent.parent / "broll_bank"
 
 BROLL_CONFIG_FILE = BROLL_DIR / "broll_config.json"
 SUPPORTED_EXTENSIONS = {".mp4", ".mov", ".mkv", ".webm", ".m4v"}

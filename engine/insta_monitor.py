@@ -47,7 +47,7 @@ async def analyze_instagram_post(url: str) -> Tuple[str, str, List[Path]]:
     """
     Downloads Instagram Reel OR Carousel/Post, adapts it and prepares content:
     - If video: transcribes and generates Telegram post & insights.
-    - If carousel/photos: OCRs slides, rewrites in Amalia's voice, and renders 1080x1350 PNG cards!
+    - If carousel/photos: OCRs slides, rewrites in expert's voice, and renders 1080x1350 PNG cards!
     Returns (response_text, model_name, generated_images_list).
     """
     shortcode = extract_shortcode(url)
@@ -72,7 +72,7 @@ async def analyze_instagram_post(url: str) -> Tuple[str, str, List[Path]]:
         mp4_files = sorted(list(tmp_dir.glob("*.mp4")))
 
         if not is_video or (jpg_files and not mp4_files):
-            # This is an image carousel! Adapt it to Amalia's brand & compile to PNG cards!
+            # This is an image carousel! Adapt it to expert's brand & compile to PNG cards!
             first_image_bytes = jpg_files[0].read_bytes() if jpg_files else None
             
             source_content = f"Подпись к посту:\n{caption}\n\nКоличество карточек в оригинале: {len(jpg_files)}"
@@ -83,7 +83,7 @@ async def analyze_instagram_post(url: str) -> Tuple[str, str, List[Path]]:
             )
             
             summary_text = (
-                f"🎨 <b>Карусель из Instagram успешно адаптирована под Амалию!</b>\n\n"
+                f"🎨 <b>Карусель из Instagram успешно адаптирована под стиль эксперта!</b>\n\n"
                 f"{explanation}\n\n"
                 f"🖼 Сверстано карточек: <b>{len(images)}</b> (1080x1350 PNG)"
             )
@@ -108,8 +108,8 @@ async def analyze_instagram_post(url: str) -> Tuple[str, str, List[Path]]:
             f"Оригинальный текст подписи: {caption}\n\n"
             "Сделай структурированный разбор для команды по формату:\n"
             "1. 💡 КЛЮЧЕВОЙ СМЫСЛ И БОЛЬ ЦА (в чём суть и какой вывод закладывается)\n"
-            "2. 💬 ЖИВЫЕ ЦИТАТЫ АМАЛИИ (хлёсткие фразы, бытовые образы, добивки)\n"
-            "3. ✍️ ГОТОВЫЙ ПОСТ ДЛЯ TELEGRAM-КАНАЛА (адаптируй этот рилс в полноценный пост для канала «вся правда о бьюти бизнесе» по правилам Урока 6)\n"
+            "2. 💬 ЖИВЫЕ ЦИТАТЫ СПИКЕРА (хлёсткие фразы, бытовые образы, добивки)\n"
+            "3. ✍️ ГОТОВЫЙ ПОСТ ДЛЯ TELEGRAM-КАНАЛА (адаптируй этот рилс в полноценный пост для Telegram-канала)\n"
             "4. 🎨 ИДЕЯ ДЛЯ КАРУСЕЛИ (заголовок обложки, 3 слайда с тезисами, 1 CTA)"
         )
         
