@@ -1,8 +1,3 @@
-try:
-    from config import EXPERT_NAME, BRAND_NAME
-except ImportError:
-    EXPERT_NAME = os.getenv("EXPERT_NAME", "Эксперт")
-    BRAND_NAME = os.getenv("BRAND_NAME", "AI Video Team")
 import os
 import re
 import sys
@@ -10,7 +5,16 @@ import json
 import time
 import subprocess
 from pathlib import Path
-from tg_bot.config import KARUSEL_DIR
+
+try:
+    from config import EXPERT_NAME, BRAND_NAME, KARUSEL_DIR
+except ImportError:
+    try:
+        from tg_bot.config import EXPERT_NAME, BRAND_NAME, KARUSEL_DIR
+    except ImportError:
+        EXPERT_NAME = os.getenv("EXPERT_NAME", "Эксперт")
+        BRAND_NAME = os.getenv("BRAND_NAME", "AI Video Team")
+        KARUSEL_DIR = Path(__file__).resolve().parent.parent / "carousel_generator"
 
 AVAILABLE_DECKS = [
     "voda", "sobraniya", "kreslo", "opytny", "smenili", "ne_prodaet",
@@ -307,7 +311,9 @@ def run_build_karusel(deck_name: str | None = None) -> tuple[bool, str, list[Pat
     try:
         res = subprocess.run(cmd, cwd=str(KARUSEL_DIR), capture_output=True, text=True, check=False)
         output = (res.stdout or "") + "\n" + (res.stderr or "")
-        cards_dir = KARUSEL_DIR / target_deck
+        cards_dir = KARUSEL_DIR / f"karusel_{target_deck}"
+        if not cards_dir.exists():
+            cards_dir = KARUSEL_DIR / target_deck
         images = sorted(list(cards_dir.glob("*.png"))) if cards_dir.exists() else []
         return (res.returncode == 0 and len(images) > 0), output, images, target_deck
     except Exception as e:

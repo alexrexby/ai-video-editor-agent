@@ -60,7 +60,13 @@ DATA_DIR = BASE_DIR / "data"
 MATERIALS_DIR = os.getenv("MATERIALS_DIR", str(DATA_DIR / "materials"))
 RAZBOR_DIR = os.getenv("RAZBOR_DIR", str(DATA_DIR / "razbors"))
 CONTENT_DIR = os.getenv("CONTENT_DIR", str(DATA_DIR / "content"))
-KARUSEL_DIR = os.getenv("KARUSEL_DIR", str(DATA_DIR / "carousels"))
+_env_karusel = os.getenv("KARUSEL_DIR", "")
+if _env_karusel and Path(_env_karusel).exists():
+    KARUSEL_DIR = Path(_env_karusel)
+elif (BASE_DIR / "carousel_generator").exists():
+    KARUSEL_DIR = BASE_DIR / "carousel_generator"
+else:
+    KARUSEL_DIR = DATA_DIR / "carousels"
 VIDEOS_DIR = Path(os.getenv("VIDEOS_DIR", str(DATA_DIR / "videos")))
 BROLL_DIR = Path(os.getenv("BROLL_DIR", str(BASE_DIR / "broll_bank")))
 MODELS_DIR = Path(os.getenv("MODELS_DIR", str(BASE_DIR / "models")))
